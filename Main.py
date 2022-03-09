@@ -1,2 +1,5 @@
-print('hola mundo')
-print('Prueba de correcto push ')
+from Ventana import Grafica
+
+interfaz = Grafica()
+
+interfaz.Ventana()
