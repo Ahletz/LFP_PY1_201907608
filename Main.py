@@ -1,5 +1,5 @@
-from Ventana import Grafica
+from Analizador import *
 
-interfaz = Grafica()
+llamado = Analisis()
 
-interfaz.Ventana()
+llamado.Read()
