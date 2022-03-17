@@ -20,9 +20,11 @@ class Analisis:
 
         estado = 0 #estado de analizador
 
-        linea = 0 #linea donde se encuentra el analizador
+        linea = 1 #linea donde se encuentra el analizador
 
-        columna = 0
+        columna = 1
+
+        palabra = '' #contenedor
 
         token = Token()
 
@@ -143,7 +145,7 @@ class Analisis:
                 
                 elif contenido[i] == ':':
 
-                    if palabra.lower().rstrip().lstrip() == 'tipo' or palabra.lower().rstrip().lstrip() == 'Valor' or palabra.lower().rstrip().lstrip() == 'fondo':
+                    if palabra.lower() == 'tipo' or palabra.lower() == 'Valor' or palabra.lower() == 'fondo':
                         
                         estado = 4
                         ##agregar la palabra a la lista de tokens
@@ -154,7 +156,7 @@ class Analisis:
 
                     elif palabra.lower().lstrip().rstrip() == 'valores': #para los valores
                         
-                        estado = 7
+                        estado = 8
                         ##agregar la palabra a la lista de tokens
                         columna_palabra = columna -1 #columna e la palabra
                         palabra = palabra.lstrip().rstrip() #palabra sin espacios al final o al inicio 
@@ -163,7 +165,7 @@ class Analisis:
 
                     elif palabra.lower().lstrip().rstrip() == 'evento': #para los eventos
 
-                        estado = 8
+                        estado = 12
                         ##agregar la palabra a la lista de tokens
                         columna_palabra = columna -1 #columna e la palabra
                         palabra = palabra.lstrip().rstrip() #palabra sin espacios al final o al inicio 
@@ -248,13 +250,236 @@ class Analisis:
                     tipo = 'Coma'
                     token.Contruccion(tipo, palabra, linea, columna) # agregar a los tockens la coma
 
+                elif contenido[i] == '>':
+
+                    estado = 7
+                    palabra = ''
+                    palabra += contenido[i]
+                    tipo = 'Mayor Que'
+                    token.Contruccion(tipo, palabra, linea, columna) # agregar a los tockens la coma
+
+                elif contenido [i] == ' ':
+
+                    continue #si viene un espacio 
+
                 else:  
 
                     palabra = '' # limpiar palabra
                     palabra += contenido[i] #para manejo de errores
                     error.Err(palabra, linea, columna) # agregar palabra a lista de errores
                     continue
+
+            elif estado == 7:
+
+                if contenido [i] == ',':
+
+                    estado = 2
+                    palabra = ''
+                    palabra += contenido[i]
+                    tipo = 'Coma'
+                    token.Contruccion(tipo, palabra, linea, columna) # agregar a los tockens la coma
+
+                elif contenido == ']':
+                    
+                    palabra = ''
+                    palabra += contenido[i]
+                    tipo = 'Cerrar Corchete'
+                    token.Contruccion(tipo, palabra, linea, columna) # agregar a los tockens las comillas
+
+                elif contenido [i] == ' ':
+
+                    continue #si viene un espacio 
+
+                else:  
+
+                    palabra = '' # limpiar palabra
+                    palabra += contenido[i] #para manejo de errores
+                    error.Err(palabra, linea, columna) # agregar palabra a lista de errores
+                    continue
+
+            elif estado == 8:
+
+                if contenido[i] == '"':
+
+                    palabra = ''
+                    palabra += contenido[i]
+                    tipo = 'Comillas'
+                    token.Contruccion(tipo, palabra, linea, columna) # agregar a los tockens las comillas
+                
+                elif contenido[i] == '[':
+                    
+                    estado = 9
+                    palabra = ''
+                    palabra += contenido[i]
+                    tipo = 'Abrir corchete'
+                    token.Contruccion(tipo, palabra, linea, columna) # agregar a los tockens las comillas
+
+                elif contenido [i] == ' ':
+
+                    continue #si viene un espacio 
+
+                else: 
+
+                    palabra = '' # limpiar palabra
+                    palabra += contenido[i] #para manejo de errores
+                    error.Err(palabra, linea, columna) # agregar palabra a lista de errores
+                    continue
+
+            elif estado == 9: 
+
+                if contenido[i] == "'":
+
+                    palabra = ''
+                    palabra += contenido[i]
+                    tipo = 'Comilla simple'
+                    token.Contruccion(tipo, palabra, linea, columna) # agregar a los tockens las comillas
+                    estado = 10
+                    palabra = '' #limpiar palabra para estado 9 (letras)
+                
+                elif contenido [i] == ' ':
+
+                    continue #si viene un espacio 
+
+                else: 
+
+                    palabra = '' # limpiar palabra
+                    palabra += contenido[i] #para manejo de errores
+                    error.Err(palabra, linea, columna) # agregar palabra a lista de errores
+                    continue
+
+            elif estado == 10:
+
+                if contenido[i].isalpha() or contenido[i] == ' ':
+
+                    palabra += contenido[i]
+                    continue
+
+                elif contenido[i] == "'":
+
+                    ##agregar la palabra a lista de tokens
+                    columna_palabra = columna -1 #columna e la palabra
+                    palabra = palabra.rstrip().lstrip() #palabra sin espacios al final o inicio
+                    #agregar anterior a tockens 
+                    token.Contruccion(tipo, palabra, linea, columna_palabra) # agregar a los tockens la palabra
+
+                    palabra = ''
+                    palabra += contenido[i]
+                    tipo = 'Comilla simple'
+                    token.Contruccion(tipo, palabra, linea, columna) # agregar a los tockens las comillas
+                
+                elif contenido[i] == ',':
+
+                    palabra = ''
+                    palabra += contenido[i]
+                    tipo = 'Coma'
+                    token.Contruccion(tipo, palabra, linea, columna) # agregar a los tockens las comillas
+                    estado = 9
+                
+                elif contenido[i] == ']':
+
+                    palabra = ''
+                    palabra += contenido[i]
+                    tipo = 'Cerrar Corchete'
+                    token.Contruccion(tipo, palabra, linea, columna) # agregar a los tockens las comillas
+                    estado = 11
+
+                else: 
+
+                    palabra = '' # limpiar palabra
+                    palabra += contenido[i] #para manejo de errores
+                    error.Err(palabra, linea, columna) # agregar palabra a lista de errores
+                    continue
+
+            elif estado == 11:
+
+                if contenido[i] == '>':
+
+                    palabra = ''
+                    palabra += contenido[i]
+                    tipo = 'Mayor Que'
+                    token.Contruccion(tipo, palabra, linea, columna) # agregar a los tockens la coma
+                    estado = 7
+
+                elif contenido [i] == ' ':
+
+                    continue #si viene un espacio 
+
+                else:  
+
+                    palabra = '' # limpiar palabra
+                    palabra += contenido[i] #para manejo de errores
+                    error.Err(palabra, linea, columna) # agregar palabra a lista de errores
+                    continue
+
+            elif estado == 12:
+
+                if contenido == '<':
+
+                    palabra = '' #limpiar palabra
+                    estado = 13 #cambio de estado
+                    palabra += contenido[i]
+                    tipo = 'Menor Que'
+                    token.Contruccion(tipo, palabra, linea, columna) #agregar menor que 
+
+                    palabra = '' #limpiar palabra siguiente estado 
+                    continue
+
+                elif contenido[i] == ' ':
+
+                    continue #si vienen espacio 
+
+                else: 
+                    
+                    palabra = '' # limpiar palabra
+                    palabra += contenido[i] #para manejo de errores
+                    error.Err(palabra, linea, columna) # agregar palabra a lista de errores
+                    continue
+
+            elif estado == 13:
+
+                if contenido[i].isalpha() or contenido[i] == ' ':
+
+                    palabra += contenido[i]
+
+                    continue
+                elif contenido[i] == '>':
+
+                    ##agregar la palabra a lista de tokens
+                    columna_palabra = columna -1 #columna e la palabra
+                    palabra = palabra.rstrip().lstrip() #palabra sin espacios al final o inicio
+                    #agregar anterior a tockens 
+                    token.Contruccion(tipo, palabra, linea, columna_palabra) # agregar a los tockens la palabra
+
+                    palabra = '' #limpiar palabra
+                    estado = 7 #cambio de estado
+                    palabra += contenido[i]
+                    tipo = 'Mayor Que'
+                    token.Contruccion(tipo, palabra, linea, columna) #agregar menor que
+
+                else: 
+                    
+                    palabra = '' # limpiar palabra
+                    palabra += contenido[i] #para manejo de errores
+                    error.Err(palabra, linea, columna) # agregar palabra a lista de errores
+                    continue
+
             
+
+
+
+
+
+
+
+
+
+                
+
+
+
+
+
+
 
 
 
