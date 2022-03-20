@@ -4,7 +4,7 @@ from tkinter import filedialog
 import tkinter
 from click import command
 
-from Analizador import *
+from Analizador import Lectura
 
 
 class Grafica:
@@ -64,13 +64,15 @@ class Grafica:
 
     def Comienzo (self):
 
-        llamado = Lectura()
+        llamdo = Lectura()
 
-        llamado.Read(self.text)
-
-        
+        llamdo.Read(self.text)
 
         print('uwu')
+
+
+
+
 
 
 

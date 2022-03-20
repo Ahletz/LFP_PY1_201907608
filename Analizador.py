@@ -4,11 +4,11 @@ from Errores import *
 from TOKENS import *
 from pyparsing import alphanums
 
-from Ventana import *
 
 
 class Lectura:
 
+    
     def Read(self, texto):
 
         #texto = open(direccion) #abrir documento y obtener direccion
