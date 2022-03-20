@@ -6,7 +6,7 @@ formulario ~>>[
     >,
     <
         tipo: "texto",
-        valor: "Nombre",
+        valor:  "Nombre",
         fondo: "Ingrese nombre"
     
     >,
@@ -30,3 +30,5 @@ formulario ~>>[
     >
 
 ]
+
+    

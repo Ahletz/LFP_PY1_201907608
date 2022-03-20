@@ -4,19 +4,16 @@ from Errores import *
 from TOKENS import *
 from pyparsing import alphanums
 
-
-class Analisis:
-
+from Ventana import *
 
 
-    def Read(self):
+class Lectura:
 
-        
-        texto = open('prueba01.form') #abrir documento y obtener direccion
+    def Read(self, texto):
 
-        contenido = texto.read() #contenido del docmuneto 
+        #texto = open(direccion) #abrir documento y obtener direccion
 
-        contenido += '#' #agregar finalizador de texto 
+        contenido = texto #texto.read() #contenido del docmuneto 
 
         estado = 0 #estado de analizador
 
@@ -69,7 +66,7 @@ class Analisis:
 
                     continue
 
-                elif contenido[i] == ' ':
+                elif contenido[i] == ' ' or contenido[i] == '\n' or contenido[i] == '\t':
 
                     continue #si vienen espacio 
 
@@ -100,7 +97,7 @@ class Analisis:
                     tipo = 'Abrir Corchete'
                     token.Contruccion(tipo, palabra, linea, columna) # agregar abrir corchete
                     continue
-                elif contenido[i] == ' ':
+                elif contenido[i] == ' ' or contenido[i] == '\n' or contenido[i] == '\t':
 
                     continue #si vienen espacio 
 
@@ -124,7 +121,7 @@ class Analisis:
                     palabra = '' #limpiar palabra siguiente estado 
                     continue
 
-                elif contenido[i] == ' ':
+                elif contenido[i] == ' ' or contenido[i] == '\n' or contenido[i] == '\t':
 
                     continue #si vienen espacio 
 
@@ -137,15 +134,19 @@ class Analisis:
             
             elif estado == 3:
 
-                if contenido[i].isalpha() or contenido[i] == ' ':
- 
+                if contenido[i].isalpha():
+                    tipo = 'palabra'
                     palabra += contenido[i]
                     continue
 
-                
-                elif contenido[i] == ':':
+                elif contenido[i] == '\n' or contenido[i] == '\t' or contenido[i] == ' ':
+                    palabra = ''
+                    continue
 
-                    if palabra.lower() == 'tipo' or palabra.lower() == 'Valor' or palabra.lower() == 'fondo':
+                elif contenido[i] == ':':
+                    
+
+                    if palabra.lower() == 'tipo' or palabra.lower() == 'valor' or palabra.lower() == 'fondo':
                         
                         estado = 4
                         ##agregar la palabra a la lista de tokens
@@ -163,7 +164,7 @@ class Analisis:
                         #agregar anterior a tockens 
                         token.Contruccion(tipo, palabra, linea, columna_palabra) # agregar a los tockens la palabra
 
-                    elif palabra.lower().lstrip().rstrip() == 'evento': #para los eventos
+                    elif palabra.lower() == 'evento': #para los eventos
 
                         estado = 12
                         ##agregar la palabra a la lista de tokens
@@ -199,7 +200,7 @@ class Analisis:
                     tipo = 'Comillas'
                     token.Contruccion(tipo, palabra, linea, columna) #agregar comillas 
 
-                elif contenido [i] == ' ':
+                elif contenido [i] == ' ' or contenido[i] == '\n' or contenido[i] == '\t':
 
                     continue #si viene un espacio 
 
@@ -212,10 +213,14 @@ class Analisis:
 
             elif estado == 5:
 
-                if contenido[i].isalpha or contenido[i] == ' ' or contenido[i] == '-': #leer el contenido dentro de tipo 
+                if contenido[i].isalpha() or contenido[i] == ' ' or contenido[i] == '-' or contenido[i] == ':': #leer el contenido dentro de tipo 
 
                     palabra += contenido[i]
                     tipo = 'Palabra'
+                    continue
+
+                elif contenido[i] == '\n' or contenido[i] == '\t' :
+                    palabra = ''
                     continue
 
                 elif contenido[i] == '"':
@@ -258,7 +263,7 @@ class Analisis:
                     tipo = 'Mayor Que'
                     token.Contruccion(tipo, palabra, linea, columna) # agregar a los tockens la coma
 
-                elif contenido [i] == ' ':
+                elif contenido [i] == ' ' or contenido[i] == '\n' or contenido[i] == '\t':
 
                     continue #si viene un espacio 
 
@@ -279,14 +284,21 @@ class Analisis:
                     tipo = 'Coma'
                     token.Contruccion(tipo, palabra, linea, columna) # agregar a los tockens la coma
 
-                elif contenido == ']':
+                elif contenido[i] == '>':
+
+                    palabra = ''
+                    palabra += contenido[i]
+                    tipo = 'Mayor Que'
+                    token.Contruccion(tipo, palabra, linea, columna) # agregar a los tockens las comillas
+
+                elif contenido[i] == ']':
                     
                     palabra = ''
                     palabra += contenido[i]
                     tipo = 'Cerrar Corchete'
                     token.Contruccion(tipo, palabra, linea, columna) # agregar a los tockens las comillas
 
-                elif contenido [i] == ' ':
+                elif contenido [i] == ' ' or contenido[i] == '\n' or contenido[i] == '\t':
 
                     continue #si viene un espacio 
 
@@ -314,7 +326,7 @@ class Analisis:
                     tipo = 'Abrir corchete'
                     token.Contruccion(tipo, palabra, linea, columna) # agregar a los tockens las comillas
 
-                elif contenido [i] == ' ':
+                elif contenido [i] == ' ' or contenido[i] == '\n' or contenido[i] == '\t':
 
                     continue #si viene un espacio 
 
@@ -336,7 +348,7 @@ class Analisis:
                     estado = 10
                     palabra = '' #limpiar palabra para estado 9 (letras)
                 
-                elif contenido [i] == ' ':
+                elif contenido [i] == ' ' or contenido[i] == '\n' or contenido[i] == '\t':
 
                     continue #si viene un espacio 
 
@@ -352,6 +364,10 @@ class Analisis:
                 if contenido[i].isalpha() or contenido[i] == ' ':
 
                     palabra += contenido[i]
+                    continue
+
+                elif contenido[i] == '\n' or contenido[i] == '\t' :
+                    palabra = ''
                     continue
 
                 elif contenido[i] == "'":
@@ -400,7 +416,7 @@ class Analisis:
                     token.Contruccion(tipo, palabra, linea, columna) # agregar a los tockens la coma
                     estado = 7
 
-                elif contenido [i] == ' ':
+                elif contenido [i] == ' ' or contenido[i] == '\n' or contenido[i] == '\t':
 
                     continue #si viene un espacio 
 
@@ -413,7 +429,7 @@ class Analisis:
 
             elif estado == 12:
 
-                if contenido == '<':
+                if contenido[i] == '<':
 
                     palabra = '' #limpiar palabra
                     estado = 13 #cambio de estado
@@ -424,7 +440,7 @@ class Analisis:
                     palabra = '' #limpiar palabra siguiente estado 
                     continue
 
-                elif contenido[i] == ' ':
+                elif contenido[i] == ' ' or contenido[i] == '\n' or contenido[i] == '\t':
 
                     continue #si vienen espacio 
 
@@ -439,9 +455,16 @@ class Analisis:
 
                 if contenido[i].isalpha() or contenido[i] == ' ':
 
+                    tipo = 'Palabra'
                     palabra += contenido[i]
 
                     continue
+
+                elif contenido[i] == '\n' or contenido[i] == '\t' :
+                    palabra = ''
+                    continue
+
+
                 elif contenido[i] == '>':
 
                     ##agregar la palabra a lista de tokens
