@@ -13,13 +13,19 @@ formulario ~>>[
     <
         tipo: "grupo-radio",
         valor: "sexo",
-        valores: "['Masculino','Femenino']
+        valores: ['Masculino','Femenino']
+    
+    >,
+    <
+        tipo: "grupo-radio",
+        valor: "sexo",
+        valores: ['perro','gato']
     
     >,
     <
         tipo: "grupo-option",
         valor: "pais",
-        valores: "['Guatemala','El Salvador','Honduras']
+        valores: ['Guatemala','El Salvador','Honduras']
     
     >,
     <

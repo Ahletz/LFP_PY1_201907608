@@ -8,6 +8,8 @@ from pyparsing import alphanums
 
 class Lectura:
 
+    Objetos = []
+
     
     def Read(self, texto):
 
@@ -26,6 +28,8 @@ class Lectura:
         token = Token()
 
         error = Error()
+
+
 
 
         for i in range(len(contenido)):
@@ -112,6 +116,9 @@ class Lectura:
 
                 if contenido[i] == '<':
 
+                    funciones = [] # lista para guardar cada una de las funciones del formulario
+                    ListaV = [] #lista con los valores de valores
+
                     palabra = '' #limpiar palabra
                     estado = 3 #cambio de estado
                     palabra += contenido[i]
@@ -135,7 +142,7 @@ class Lectura:
             elif estado == 3:
 
                 if contenido[i].isalpha():
-                    tipo = 'palabra'
+                    tipo = 'palabra Reservada'
                     palabra += contenido[i]
                     continue
 
@@ -144,6 +151,7 @@ class Lectura:
                     continue
 
                 elif contenido[i] == ':':
+                    
                     
 
                     if palabra.lower() == 'tipo' or palabra.lower() == 'valor' or palabra.lower() == 'fondo':
@@ -195,10 +203,10 @@ class Lectura:
                 if contenido[i] == '"':
                     
                     estado = 5
-                    palabra = '' #lilmpiara palabra 
                     palabra += contenido[i]
                     tipo = 'Comillas'
                     token.Contruccion(tipo, palabra, linea, columna) #agregar comillas 
+                    palabra = '' #lilmpiara palabra 
 
                 elif contenido [i] == ' ' or contenido[i] == '\n' or contenido[i] == '\t':
 
@@ -230,6 +238,7 @@ class Lectura:
                     palabra = palabra.rstrip().lstrip() #palabra sin espacios al final o inicio
                     #agregar anterior a tockens 
                     token.Contruccion(tipo, palabra, linea, columna_palabra) # agregar a los tockens la palabra
+                    funciones.append(palabra)
 
                     palabra = '' #limpiar la palabra
                     palabra += contenido[i] 
@@ -256,6 +265,8 @@ class Lectura:
                     token.Contruccion(tipo, palabra, linea, columna) # agregar a los tockens la coma
 
                 elif contenido[i] == '>':
+                    
+                    self.Objetos.append(funciones) #agregar palabra a objetos
 
                     estado = 7
                     palabra = ''
@@ -285,6 +296,8 @@ class Lectura:
                     token.Contruccion(tipo, palabra, linea, columna) # agregar a los tockens la coma
 
                 elif contenido[i] == '>':
+
+                    self.Objetos.append(funciones)
 
                     palabra = ''
                     palabra += contenido[i]
@@ -372,6 +385,8 @@ class Lectura:
 
                 elif contenido[i] == "'":
 
+                    ListaV.append(palabra)
+
                     ##agregar la palabra a lista de tokens
                     columna_palabra = columna -1 #columna e la palabra
                     palabra = palabra.rstrip().lstrip() #palabra sin espacios al final o inicio
@@ -393,6 +408,8 @@ class Lectura:
                 
                 elif contenido[i] == ']':
 
+                    funciones.append(ListaV) #agregar lista de valores a lista de funciones
+
                     palabra = ''
                     palabra += contenido[i]
                     tipo = 'Cerrar Corchete'
@@ -409,6 +426,8 @@ class Lectura:
             elif estado == 11:
 
                 if contenido[i] == '>':
+
+                    self.Objetos.append(funciones)
 
                     palabra = ''
                     palabra += contenido[i]
@@ -467,6 +486,8 @@ class Lectura:
 
                 elif contenido[i] == '>':
 
+                    funciones.append(palabra) #agregar palabra
+
                     ##agregar la palabra a lista de tokens
                     columna_palabra = columna -1 #columna e la palabra
                     palabra = palabra.rstrip().lstrip() #palabra sin espacios al final o inicio
@@ -485,6 +506,9 @@ class Lectura:
                     palabra += contenido[i] #para manejo de errores
                     error.Err(palabra, linea, columna) # agregar palabra a lista de errores
                     continue
+
+        token.Reporte() #generar el reporte de tockens
+        error.Reporte() #generar el reporte de errores
 
             
 
